@@ -62,7 +62,6 @@ O sistema incentiva o usuário a se exercitar e o recompensa com moedas Capiba, 
 ```
 devsofot-2025-2/
 ├── README.md                  → Descrição geral do projeto
-├── architecture/              → Decisões arquiteturais (ADRs)
 │   └── readme.txt
 ├── docs/                      → Documentação e materiais do projeto
 │   ├── decisions/             → ADRs detalhadas
