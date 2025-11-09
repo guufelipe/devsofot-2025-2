@@ -6,7 +6,9 @@
 
 import express from 'express';
 import { query } from '../database/db_connection';
-import { processAndCreditActivity } from '../services/rewardEngine';
+// REMOVIDO
+// import { processAndCreditActivity } from '../services/rewardEngine';
+import { addActivityToQueue } from '../services/QueueService';
 
 const router = express.Router();
 
@@ -26,19 +28,22 @@ router.post('/activities/sync', async (req, res) => {
         return res.status(400).json({ error: "Dados de atividade incompletos." });
     }
 
-    // Delegamos o processamento (validação anti-fraude, cálculo e chamada à API externa)
-    // ao serviço de domínio. Nota: no desenho ideal essa chamada seria enfileirada.
-    const result = await processAndCreditActivity(userId, distanceKm, timeMinutes, activityType);
+    // MUDANÇA (HU1.4):
+    // Em vez de esperar pelo processamento (que pode levar segundos),
+    // apenas adicionamos a tarefa na fila e respondemos AGORA.
+    try {
+        await addActivityToQueue({ userId, distanceKm, timeMinutes, activityType });
 
-    if (result.success) {
-        // 202 indica aceitação/processamento; inclui quantas capibas foram creditadas.
+        // Retorna 202 Accepted: A requisição foi aceita, mas o processamento 
+        // ainda está em andamento (assíncrono).
         return res.status(202).json({ 
-            message: "Atividade recebida. Crédito em processamento.",
-            credited: result.credited
+            message: "Atividade recebida e encaminhada para processamento de crédito."
         });
-    } else {
-        // Erros de validação/negócio retornam 400 com mensagem explicativa
-        return res.status(400).json({ error: result.message });
+
+    } catch (error) {
+        // Se a fila falhar (ex: Redis indisponível), retorna erro 500
+        console.error("Erro ao enfileirar atividade:", error);
+        return res.status(500).json({ error: "Erro interno ao enfileirar a atividade." });
     }
 });
 
