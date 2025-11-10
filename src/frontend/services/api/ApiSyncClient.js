@@ -33,13 +33,14 @@ export async function sendActivityToBackend(activityData) {
         
         const response = await axios.post(syncUrl, payload);
 
-        // O backend deve retornar 202 Accepted (Task HU1-4 - Assíncrono)
+        // O backend deve retornar 202 Accepted (Task HU1-5 - Assíncrono)
         if (response.status === 202) {
             return { 
                 success: true, 
                 message: response.data.message || "Sincronização iniciada com sucesso.",
-                // O backend pode, opcionalmente, retornar o valor esperado do crédito
-                credited: response.data.credited 
+                // (X) O backend pode, opcionalmente, retornar o valor esperado do crédito (X)
+                // O COMENTÁRIO ACIMA ESTÁ ERRADO, pois neste momento, a atividade ainda está na fila,
+                // e o cálculo do crédito (rewardEngine.js) ainda não aconteceu
             };
         }
 
