@@ -5,7 +5,7 @@
   "description": "Projeto de atividade física com recompensas Capiba",
   "main": "index.js",
   "scripts": {
-    "start": "npm --prefix src/frontend run dev",
+  "start": "npm --prefix src/frontend run dev",
     "test": "jest"
   },
   "keywords": [
