@@ -149,3 +149,9 @@ export async function processAndCreditActivity(userId, distanceKm, timeMinutes, 
         return { success: false, message: "Falha na requisição à API da Prefeitura." };
     }
 }
+
+// Função adicional: calcula bônus de boas-vindas (2x capibas normais)
+// Usada pelo WelcomeBonusService.js
+export function calculateWelcomeBonus(km) {
+    return calculateCapibas(km) * 2;  // 2x
+}

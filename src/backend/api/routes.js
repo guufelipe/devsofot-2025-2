@@ -1,39 +1,39 @@
 import express from 'express';
 import { query } from '../database/db_connection.js';
 import { addActivityToQueue } from '../services/QueueService.js';
+import { WelcomeBonusService } from "../services/WelcomeBonusService.js";
 
 const router = express.Router();
 
+
+// --------------------------------------------------
+// ROTA: /activities/sync
+// --------------------------------------------------
 router.post('/activities/sync', async (req, res) => {
-    // Extrai dados enviados pelo cliente
     const { userId, distanceKm, timeMinutes, activityType } = req.body;
 
-    // Validação básica de presença de campos (camada superior pode aplicar validações adicionais)
     if (!userId || !distanceKm || !timeMinutes || !activityType) {
         return res.status(400).json({ error: "Dados de atividade incompletos." });
     }
 
     try {
         await addActivityToQueue({ userId, distanceKm, timeMinutes, activityType });
-        return res.status(202).json({ 
-            message: "Atividade recebida e encaminhada para processamento de crédito."
+        return res.status(202).json({
+            message: "Atividade recebida e encaminhada para processamento."
         });
-
     } catch (error) {
-        console.error("Erro ao enfileirar atividade:", error);
+        console.error("Erro ao enfileirar:", error);
         return res.status(500).json({ error: "Erro interno ao enfileirar a atividade." });
     }
 });
 
-// Rota: GET /users/:userId/transactions
-// Responsabilidade:
-// - Recuperar o extrato de transações (últimas N entradas) do usuário.
-// - Usa consulta SQL parametrizada para evitar SQL injection.
 
+// --------------------------------------------------
+// ROTA: Extrato do usuário
+// --------------------------------------------------
 router.get('/users/:userId/transactions', async (req, res) => {
     const userId = req.params.userId;
 
-    // Query parametrizada: seleciona campos relevantes para o extrato que o frontend espera
     const sqlQuery = `
         SELECT 
             amount_capiba AS valor, 
@@ -43,22 +43,22 @@ router.get('/users/:userId/transactions', async (req, res) => {
         FROM transactions
         WHERE user_id = $1
         ORDER BY date_time DESC
-        LIMIT 20; 
+        LIMIT 20;
     `;
 
     try {
-        // Executa a query com o pool de conexões e retorna as linhas ao cliente
         const { rows } = await query(sqlQuery, [userId]);
-
         return res.status(200).json({ transactions: rows });
     } catch (error) {
-            // Log básico de erro; em produção use logger estruturado
         console.error("Erro ao buscar extrato:", error);
-        return res.status(500).json({ error: "Erro interno ao buscar transações." });
+        return res.status(500).json({ error: "Erro ao buscar transações." });
     }
 });
 
-// Recupera saldo do usuário
+
+// --------------------------------------------------
+// ROTA: Saldo do usuário
+// --------------------------------------------------
 router.get('/users/:userId/balance', async (req, res) => {
     const userId = req.params.userId;
 
@@ -71,31 +71,57 @@ router.get('/users/:userId/balance', async (req, res) => {
 
     try {
         const { rows } = await query(sql, [userId]);
-        if (!rows || rows.length === 0) {
+
+        if (!rows.length) {
             return res.status(404).json({ error: "Usuário não encontrado." });
         }
+
         return res.status(200).json({ balance: rows[0].balance });
     } catch (error) {
         console.error("Erro ao buscar saldo:", error);
-        return res.status(500).json({ error: "Erro interno ao recuperar saldo." });
+        return res.status(500).json({ error: "Erro interno ao buscar saldo." });
     }
 });
 
-// Rota de teste da conexão com o banco de dados
-export default router;
 
+// --------------------------------------------------
+// ROTA: /test-db
+// --------------------------------------------------
 router.get('/test-db', async (req, res) => {
     try {
         const result = await query('SELECT NOW()');
-        return res.status(200).json({
-            ok: true,
-            time: result.rows[0].now
-        });
+        return res.status(200).json({ ok: true, time: result.rows[0].now });
     } catch (error) {
-        console.error("Erro ao testar conexão com o banco:", error);
-        return res.status(500).json({
-            ok: false,
-            error: error.message
-        });
+        return res.status(500).json({ ok: false, error: error.message });
     }
 });
+
+
+// --------------------------------------------------
+// ROTA: WelCome Challenge Bônus
+// --------------------------------------------------
+router.post("/challenges/welcome", async (req, res) => {
+  try {
+    const { user_id } = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({ error: "user_id é obrigatório" });
+    }
+
+    const result = await WelcomeBonusService.execute(user_id);
+
+    res.status(201).json({
+      message: "Bônus de boas-vindas concedido!",
+      bonus: result.bonus
+    });
+
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+
+// --------------------------------------------------
+// EXPORT — TEM QUE SER A ÚLTIMA LINHA
+// --------------------------------------------------
+export default router;

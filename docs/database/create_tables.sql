@@ -1,38 +1,50 @@
+-- ===============================================
+-- TABELA: users
+-- ===============================================
 CREATE TABLE users (
-    -- ID do usuário, chave principal. 
-    user_id VARCHAR(255) PRIMARY KEY, 
-    
-    -- Saldo atualizado da moeda Capiba (deve ser sincronizado com a Prefeitura)
-    capiba_balance INTEGER NOT NULL DEFAULT 0, 
-    
-    -- Usado para calcular streaks (sequências de dias ativos)
-    last_activity_date DATE, 
-    
-    -- Contador atual de dias consecutivos de atividade
-    current_streak_count INTEGER NOT NULL DEFAULT 0, 
-    
+    -- ID único do usuário
+    user_id VARCHAR(255) PRIMARY KEY,
+
+    -- Saldo total de Capibas do usuário
+    capiba_balance INTEGER NOT NULL DEFAULT 0,
+
+    -- Data da última atividade registrada
+    last_activity_date DATE,
+
+    -- Contagem de dias consecutivos de atividade
+    current_streak_count INTEGER NOT NULL DEFAULT 0,
+
+    -- Flag do Desafio de Boas-Vindas (F = não completado, S = completado)
+    welcome_challenge_completed CHAR(1) NOT NULL DEFAULT 'F',
+
     -- Metadados
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 
+-- ===============================================
+-- TABELA: transactions
+-- ===============================================
 CREATE TABLE transactions (
     transaction_id SERIAL PRIMARY KEY,
-    
-    -- Chave estrangeira que liga à tabela de usuários
+
+    -- FK para o usuário que recebeu esta transação
     user_id VARCHAR(255) REFERENCES users(user_id) NOT NULL,
-    
-    -- Valor da transação [Capibas recebidas por cada atividade].
-    amount_capiba INTEGER NOT NULL, 
-    
-    -- Data e hora exata do crédito
-    date_time TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP, 
-    
-    -- Exibe o motivo da transação no extrato (HU2). Ex: 'Corrida', 'Bônus Boas-Vindas', 'Bônus Ponto Turístico'.
-    activity_type VARCHAR(255) NOT NULL, 
-    
-    -- Para rastrear qual atividade gerou a transação (ex: 5.2 km de Corrida)
-    activity_details VARCHAR(255), 
+
+    -- Quantidade de Capibas creditada
+    amount_capiba INTEGER NOT NULL,
+
+    -- Data e hora da transação
+    date_time TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+
+    -- Tipo da atividade (corrida, bike, caminhada, etc.)
+    activity_type VARCHAR(255) NOT NULL,
+
+    -- Detalhes adicionais da atividade (ex: "Corrida - 5.2km")
+    activity_details VARCHAR(255),
+
+    -- Origem da bonificação (ex: 'welcome_challenge', 'tourist_point', etc.)
+    bonus_origin VARCHAR(50),
 
     -- Metadados
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
