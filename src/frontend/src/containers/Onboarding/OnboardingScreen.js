@@ -1,61 +1,93 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native'; // Ajuste conforme seu framework (React Native neste exemplo)
+import { View, Text, StyleSheet } from 'react-native';
+import axios from 'axios'; 
+// Garante que o arquivo de estilos seja importado corretamente
+import styles from './style/style.css'; 
 
-// Importa os estilos específicos do container
-import styles from './style/style.css'; // Pode exigir um arquivo de exportação em style.css
+// Endereço base da API utilizada pelo app (executando na porta 3001)
+const API_URL = 'http://localhost:3001/api'; 
 
-// Definição do Container principal
 const OnboardingScreen = ({ navigation }) => {
-    // 1. Definição dos Hooks de Estado (Fase 1.1)
-    const [isLoading, setIsLoading] = useState(true); // Para o status de loading inicial da API
-    const [hasCompletedChallenge, setHasCompletedChallenge] = useState(false); // Para a flag welcome_challenge_completed
 
-    // 2. Definição do Hook de Efeito (Fase 1.2: Fetch da API)
+    // -----------------------------
+    // 1. Estados do componente
+    // -----------------------------
+    const [isLoading, setIsLoading] = useState(true);                 // Controla exibição de loading
+    const [hasCompletedChallenge, setHasCompletedChallenge] = useState(false); // Flag do desafio concluído
+
+    // -----------------------------
+    // 2. Carregamento do status do usuário ao montar o componente
+    // -----------------------------
     useEffect(() => {
-        // A lógica do fetch da API (GET /users/me) virá aqui
-        // Por enquanto, vamos simular um delay
-        setTimeout(() => {
-            setIsLoading(false); // Finaliza o loading após o delay simulado
-            // setHasCompletedChallenge(false); // Manter como 'false' para ver a tela inicialmente
-        }, 1500); // Simula 1.5 segundos de carregamento
-    }, []); // Array de dependências vazio: executa apenas na montagem
+        const fetchUserStatus = async () => {
+            try {
+                // Chama o endpoint que retorna a flag de conclusão do desafio
+                // userId=1 é usado provisoriamente, pois ainda não há login implementado
+                const response = await axios.get(`${API_URL}/users/me?userId=1`);
+                const userData = response.data;
 
-    // 3. Lógica de Redirecionamento (Fase 1.3 - Implementação Total na Próxima Etapa)
+                // A flag vem como 'S' (sim) ou 'F' (não). Interpretamos isso para boolean.
+                const isCompleted = userData && userData.welcome_challenge_completed === 'S';
+                setHasCompletedChallenge(isCompleted);
+
+            } catch (error) {
+                // Em caso de falha (exemplo: usuário não encontrado), 
+                // assumimos que o usuário ainda não completou o desafio,
+                // garantindo a exibição da tela de onboarding.
+                console.error("Erro ao buscar status do usuário. Exibindo Onboarding por segurança.", error);
+                setHasCompletedChallenge(false);
+
+            } finally {
+                // Finaliza o estado de loading, independentemente do resultado.
+                setIsLoading(false);
+            }
+        };
+
+        fetchUserStatus();
+    }, []); // Executa uma única vez, quando o componente é montado
+
+    // -----------------------------
+    // 3. Controle de fluxo: loading e redirecionamento
+    // -----------------------------
+    
+    // Enquanto os dados não chegam, mostramos um indicador de carregamento.
     if (isLoading) {
         return (
-            <View style={styles.centerContainer}>
+            <View style={baseStyles.centerContainer}>
                 <Text>Carregando dados do usuário...</Text>
             </View>
         );
     }
 
+    // Se o usuário já completou o desafio, ele não deve ver a tela de onboarding.
     if (hasCompletedChallenge) {
-        // **NÃO IMPLEMENTAR AQUI AGORA** - O Redirecionamento é a lógica final da Fase 1.3.
-        // navigation.navigate('Home'); 
-        // return null; 
-        
-        // Retornamos uma mensagem para visualização temporária:
-         return (
-             <View style={styles.centerContainer}>
-                 <Text>Usuário já completou o desafio. Redirecionando...</Text>
-             </View>
-         );
+        // A navegação real será implementada futuramente.
+        // navigation.navigate('Home');
+
+        // Temporariamente exibimos uma mensagem para fins de teste.
+        return (
+            <View style={baseStyles.centerContainer}>
+                <Text>Usuário já completou o desafio. Redirecionando para a Home...</Text>
+            </View>
+        );
     }
-    
-    // 4. Renderização Principal (Onde o fluxo do tutorial será construído)
+
+    // -----------------------------
+    // 4. Renderização principal (Fluxo do tutorial)
+    // -----------------------------
     return (
-        <View style={styles.mainContainer}>
-            <Text style={styles.title}>Bem-vindo ao CapibaFit!</Text>
+        <View style={baseStyles.mainContainer}>
+            <Text style={baseStyles.title}>Bem-vindo ao CapibaFit!</Text>
             <Text>Aqui você irá construir o fluxo do tutorial e desafio.</Text>
-            {/* O fluxo de slides e o ChallengeCard virão aqui (Fase 2) */}
+            {/* Os slides e o ChallengeCard serão adicionados aqui futuramente */}
         </View>
     );
 };
 
-// Exporta o componente
+// Exporta o componente principal da tela
 export default OnboardingScreen;
 
-// Implementação básica dos estilos (deve ser transferida para style/style.css)
+// Estilos básicos do layout (depois poderão ser movidos para style/style.css)
 const baseStyles = StyleSheet.create({
     centerContainer: {
         flex: 1,
@@ -73,6 +105,8 @@ const baseStyles = StyleSheet.create({
         marginBottom: 10,
     }
 });
-// Nota: Em React Native, você deve garantir que os estilos sejam importados e aplicados corretamente.
-// Se você estiver usando um framework como Expo/React Native, a importação de style.css pode precisar de uma etapa extra.
-// Para fins de visualização inicial, usei o baseStyles.
+
+
+// Lembre-se: Em um ambiente real, o Worker seria um processo Node.js separado,
+// e a fila seria gerenciada por uma biblioteca como BullMQ com Redis.
+// Aqui, tudo está simplificado para fins de demonstração.
