@@ -7,7 +7,8 @@ const BONUS_AMOUNT = 50;
 const BONUS_TYPE = 'WELCOME_BONUS'; 
 const BONUS_DESC = 'Bônus de Boas-vindas: Primeira atividade completada!';
 
-class WelcomeBonusService {
+// CORREÇÃO: Usamos 'export class' aqui e removemos as definições/exportações duplicadas.
+export class WelcomeBonusService {
     
     // Verifica e aplica o bônus se for a primeira atividade.
     // Deve ser chamado DEPOIS que a atividade física foi registrada e creditada
@@ -51,5 +52,3 @@ class WelcomeBonusService {
         }
     }
 }
-
-export default new WelcomeBonusService();

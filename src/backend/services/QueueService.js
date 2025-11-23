@@ -2,11 +2,17 @@
 
 // A função que realmente faz o trabalho pesado é importada aqui
 import { processAndCreditActivity } from '../services/rewardEngine.js';
-// BONUS
-import welcomeBonusService from './WelcomeBonusService.js';
+
+// CORREÇÃO: Mudar de importação default para importação nomeada, 
+// para obter a CLASSE WelcomeBonusService.
+import { WelcomeBonusService } from './WelcomeBonusService.js'; 
 
 // Array simples para simular a fila de tarefas pendentes (apenas para demonstração)
 const activityQueue = []; 
+
+// Instanciamos o serviço AQUI, fora da fila, para que ele seja reutilizado
+// por todas as tarefas.
+const welcomeBonusServiceInstance = new WelcomeBonusService();
 
 // Adiciona uma nova atividade para ser processada assincronamente
 // {object} activityData Dados da atividade (userId, distanceKm, etc.)
@@ -47,8 +53,10 @@ function processQueue() {
         
         // IMPLEMENTAÇÃO HU4
         if (result.success) {
-            // Se a atividade física foi creditada com sucesso, verificamos o bônus
-            await welcomeBonusService.processWelcomeBonus(task.userId);
+            // CORREÇÃO: Chamamos o método na instância que criamos anteriormente.
+            // O nome da variável agora é 'welcomeBonusServiceInstance'.
+            // O nome da variável 'welcomeBonusService' original era confuso.
+            await welcomeBonusServiceInstance.processWelcomeBonus(task.userId);
         }
         // FIM DA IMPLEMENTAÇÃO HU4
 

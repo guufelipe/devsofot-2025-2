@@ -1,6 +1,3 @@
-// 1. CONFIGURAÇÃO DO DOTENV (Deve ser a primeira linha)
-import 'dotenv/config'; 
-
 // DEBUG: conferir variáveis carregadas
 // Agora elas devem aparecer corretamente no terminal
 console.log("DEBUG ENV:", {
