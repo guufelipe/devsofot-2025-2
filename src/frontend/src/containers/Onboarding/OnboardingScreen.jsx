@@ -13,6 +13,9 @@ import TrophyIcon from '../../assets/trofeu-img.png';
 import LocationIcon from '../../assets/Location.png';
 import RaioIcon from '../../assets/Raio.png';
 
+// Task 5 Confetti feedback
+import { showConfetti } from "../../../services/confetti.js";
+
 // Mapeamento para React Web
 const View = 'div';
 const Text = 'p';
@@ -142,6 +145,7 @@ const OnboardingScreen = ({ navigation }) => {
             });
 
             if (response.status === 202) {
+                showConfetti();   // Feedback visual da Task 5
                 setHasCompletedChallenge(true);
             }
 

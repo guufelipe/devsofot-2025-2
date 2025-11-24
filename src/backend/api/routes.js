@@ -5,6 +5,8 @@ import { addActivityToQueue } from '../services/QueueService.js';
 // Necessário para o fluxo assíncrono via Worker (QueueService).
 import { WelcomeBonusService } from '../services/WelcomeBonusService.js';
 
+const welcomeBonusService = new WelcomeBonusService();
+
 const router = express.Router();
 
 // ==================================================================
