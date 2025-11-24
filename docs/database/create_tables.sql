@@ -23,7 +23,7 @@ CREATE TABLE users (
 
 
 -- ===============================================
--- TABELA: transactions
+-- TABELA: transactions -
 -- ===============================================
 CREATE TABLE transactions (
     transaction_id SERIAL PRIMARY KEY,

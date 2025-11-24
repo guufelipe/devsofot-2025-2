@@ -7,7 +7,7 @@ const CAPIBA_FACTOR = Number(process.env.CAPIBA_PER_KM) || 30;
 const MAX_SPEED_KPH = 25;
 
 // CODIGO REFATORADO PARA EVITAR REPETICAO DEVIDO AO BONUS FIXO
-// Método auxiliar privado para registrar transação no banco
+// Método auxiliar privado para registrar transação no banco.
 
 async function registerTransaction(userId, amount, type, details, apiData) {
     const transactionSql = `

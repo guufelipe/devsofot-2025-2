@@ -1,13 +1,13 @@
 // src/backend/services/WelcomeBonusService.js
 import { query } from '../database/db_connection.js';
-// Importa o novo método para bônus fixo, já que ele trata da API e do DB
+// Importa o novo método para bônus fixo, já que ele trata da API e do DB.
 import { processBonusCredit } from './rewardEngine.js'; 
 
 const BONUS_AMOUNT = 50; 
 const BONUS_TYPE = 'WELCOME_BONUS'; 
 const BONUS_DESC = 'Bônus de Boas-vindas: Primeira atividade completada!';
 
-// CORREÇÃO: Usamos 'export class' aqui e removemos as definições/exportações duplicadas.
+
 export class WelcomeBonusService {
     
     // Verifica e aplica o bônus se for a primeira atividade.
@@ -17,7 +17,6 @@ export class WelcomeBonusService {
         try {
             // CA4: Creditado após o primeiro registro de atividade.
             // Contamos quantas transações de atividade física o usuário já tem no banco
-            // (Excluímos o próprio WELCOME_BONUS da contagem para evitar ciclos ou erros)
             const sqlCheck = `
                 SELECT count(*) as total 
                 FROM transactions 
