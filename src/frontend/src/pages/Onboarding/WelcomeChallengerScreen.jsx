@@ -16,7 +16,6 @@ const WelcomeChallengeScreen = () => {
             await axios.post(`${API_URL}/challenges/welcome`, { 
                 userId: userIdToTest
             });
-            alert("Desafio Aceito! 500 Capibas garantidas.");
             // Aceitou? Vai para a aba de desafios ver o progresso
             navigate('/desafios', { replace: true });
         } catch (error) {

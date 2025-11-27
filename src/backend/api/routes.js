@@ -1,7 +1,8 @@
 import express from 'express';
 import { query } from '../database/db_connection.js';
 import { addActivityToQueue } from '../services/QueueService.js';
-import { WelcomeBonusService } from "../services/WelcomeBonusService.js";
+// Se não estiver usando o WelcomeBonusService, pode remover a importação abaixo
+// import { WelcomeBonusService } from "../services/WelcomeBonusService.js";
 import pool from '../database/db_connection.js';
 
 const router = express.Router();
@@ -28,6 +29,9 @@ router.post('/activities/sync', async (req, res) => {
     }
 });
 
+// --------------------------------------------------
+// ROTA: Buscar Transações
+// --------------------------------------------------
 router.get('/users/:userId/transactions', async (req, res) => {
     const userId = req.params.userId;
 
@@ -54,16 +58,13 @@ router.get('/users/:userId/transactions', async (req, res) => {
 
 
 // --------------------------------------------------
-// ROTA: Saldo do usuário (CORRIGIDA)
+// ROTA: Saldo do usuário
 // --------------------------------------------------
 router.get('/users/:userId/balance', async (req, res) => {
     const userId = req.params.userId;
     
-    // LOG 1: Ver quem está chamando
     console.log("--> [API] Buscando saldo para o ID:", userId);
 
-    // SQL com proteção contra valor nulo (COALESCE)
-    // Se capiba_balance for null, retorna 0
     const sql = `
         SELECT COALESCE(capiba_balance, 0) as total
         FROM users
@@ -74,7 +75,6 @@ router.get('/users/:userId/balance', async (req, res) => {
     try {
         const { rows } = await query(sql, [userId]);
         
-        // LOG 2: Ver o que o banco devolveu
         console.log("--> [DB] Resultado do banco:", rows);
 
         if (!rows.length) {
@@ -82,11 +82,8 @@ router.get('/users/:userId/balance', async (req, res) => {
             return res.status(404).json({ error: "Usuário não encontrado." });
         }
 
-        // --- CORREÇÃO AQUI ---
-        // Pegamos o valor 'total' que veio do banco e guardamos na variável valorFinal
         const valorFinal = rows[0].total;
 
-        // Agora a variável existe e pode ser enviada
         return res.status(200).json({ balance: valorFinal });
 
     } catch (error) {
@@ -97,7 +94,7 @@ router.get('/users/:userId/balance', async (req, res) => {
 
 
 // --------------------------------------------------
-// ROTA: /test-db
+// ROTA: Teste de DB
 // --------------------------------------------------
 router.get('/test-db', async (req, res) => {
     try {
@@ -110,34 +107,33 @@ router.get('/test-db', async (req, res) => {
 
 
 // --------------------------------------------------
-// ROTA: Welcome Challenge Bônus
+// ROTA: Welcome Challenge Bônus (CORRIGIDA)
 // --------------------------------------------------
 router.post('/challenges/welcome', async (req, res) => {
-    // Tenta ler o ID de todas as formas possíveis (userId, user_id ou id)
+    // Tenta ler o ID de todas as formas possíveis
     const id = req.body.userId || req.body.user_id || req.body.id;
 
     console.log("Recebida requisição Welcome. ID extraído:", id);
 
-    // 1. Validação: Se não tiver ID, avisa o erro
     if (!id) {
         return res.status(400).json({ error: "O campo 'userId' ou 'user_id' é obrigatório!" });
     }
 
     try {
-        // 2. Atualiza o banco de dados
-        // (Certifique-se que o nome da coluna no banco é 'welcome_challenge_completed')
-        const query = "UPDATE users SET welcome_challenge_completed = 'S' WHERE id = $1 RETURNING *";
+        // CORREÇÃO: WHERE user_id = $1 (antes estava 'id')
+        const query = "UPDATE users SET welcome_challenge_completed = 'S' WHERE user_id = $1 RETURNING *";
         
+        // CORREÇÃO: Passamos a variável 'id' que extraímos acima (antes estava 'user_id' que não existia)
         const result = await pool.query(query, [id]);
 
         if (result.rows.length === 0) {
              return res.status(404).json({ error: "Usuário não encontrado no Banco de Dados." });
         }
 
-        // 3. Sucesso!
+        // CORREÇÃO: Removido erro de sintaxe (a barra / solta)
         res.status(200).json({ 
             message: "Desafio aceito!", 
-            user: result.rows[0] 
+            user: result.rows[0]
         });
 
     } catch (error) {
@@ -148,10 +144,9 @@ router.post('/challenges/welcome', async (req, res) => {
 
 
 // --------------------------------------------------
-// ROTA: Verificar Status do Usuário (Novo)
+// ROTA: Verificar Status do Usuário
 // --------------------------------------------------
 router.get('/users/me', async (req, res) => {
-    // O frontend manda ?userId=1, então pegamos do query
     const userId = req.query.userId; 
 
     if (!userId) {
@@ -159,8 +154,7 @@ router.get('/users/me', async (req, res) => {
     }
 
     try {
-        // Ajuste 'welcome_challenge_completed' para o nome real da sua coluna no banco
-        // Se sua tabela não tem essa coluna, use apenas 'user_id' para testar se o usuário existe
+        // CORREÇÃO: Garantindo user_id na query
         const sql = `
             SELECT user_id, welcome_challenge_completed, first_login 
             FROM users 
@@ -181,7 +175,7 @@ router.get('/users/me', async (req, res) => {
 });
 
 // --------------------------------------------------
-// ROTA: Pular Desafio (Marca como visto, mas sem bônus)
+// ROTA: Pular Desafio
 // --------------------------------------------------
 router.post("/challenges/skip", async (req, res) => {
   const { user_id } = req.body;
@@ -189,8 +183,6 @@ router.post("/challenges/skip", async (req, res) => {
   if (!user_id) return res.status(400).json({ error: "user_id obrigatório" });
 
   try {
-    // Apenas marca que o usuário já passou pelo onboarding
-    // para não mostrar a tela novamente.
     await query(
       "UPDATE users SET welcome_challenge_completed = 'S' WHERE user_id = $1",
       [user_id]
@@ -203,16 +195,21 @@ router.post("/challenges/skip", async (req, res) => {
   }
 });
 
+// --------------------------------------------------
+// ROTA: Atualizar First Login (CORRIGIDA)
+// --------------------------------------------------
+// Note o uso de :user_id na URL
 router.patch('/users/:user_id', async (req, res) => {
-    const { id } = req.params;
-    const { first_login } = req.body; // Pega o valor enviado pelo React
+    // CORREÇÃO: Pegamos 'user_id' do params, pois a rota é /users/:user_id
+    const { user_id } = req.params; 
+    const { first_login } = req.body;
 
     try {
-        // Se você estiver usando query SQL pura:
         if (first_login !== undefined) {
+             // CORREÇÃO: WHERE user_id = $2
              await pool.query(
                  'UPDATE users SET first_login = $1 WHERE user_id = $2', 
-                 [first_login, id]
+                 [first_login, user_id]
              );
         }
         
@@ -223,10 +220,7 @@ router.patch('/users/:user_id', async (req, res) => {
     }
 });
 
-
-
-
 // --------------------------------------------------
-// EXPORT — TEM QUE SER A ÚLTIMA LINHA
+// EXPORT
 // --------------------------------------------------
 export default router;
