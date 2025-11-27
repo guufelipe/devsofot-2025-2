@@ -3,10 +3,10 @@
 -- ===============================================
 CREATE TABLE users (
     -- ID único do usuário
-    id VARCHAR(255) PRIMARY KEY,
+    user_id VARCHAR(255) PRIMARY KEY,
 
     -- Saldo total de Capibas do usuário
-    balance INTEGER NOT NULL DEFAULT 0,
+    capiba_balance INTEGER NOT NULL DEFAULT 0,
 
     -- Data da última atividade registrada
     last_activity_date DATE,
@@ -23,13 +23,13 @@ CREATE TABLE users (
 
 
 -- ===============================================
--- TABELA: transactions -
+-- TABELA: transactions
 -- ===============================================
 CREATE TABLE transactions (
     transaction_id SERIAL PRIMARY KEY,
 
     -- FK para o usuário que recebeu esta transação
-    user_id VARCHAR(255) REFERENCES users(id) NOT NULL,
+    user_id VARCHAR(255) REFERENCES users(user_id) NOT NULL,
 
     -- Quantidade de Capibas creditada
     amount_capiba INTEGER NOT NULL,

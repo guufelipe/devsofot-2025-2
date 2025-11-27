@@ -2,7 +2,7 @@
 import React from 'react';
 
 // Importa a imagem do mascote
-import MascoteCapiba from '../../assets/mascote-capiba.png'; 
+import MascoteCapiba from './icon.png'; 
 
 // Mapeamento para tags Web (necessário para rodar no ambiente Vite)
 const View = 'div';

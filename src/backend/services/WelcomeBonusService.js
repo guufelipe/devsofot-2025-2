@@ -1,53 +1,68 @@
-// src/backend/services/WelcomeBonusService.js
-import { query } from '../database/db_connection.js';
-// Importa o novo método para bônus fixo, já que ele trata da API e do DB.
-import { processBonusCredit } from './rewardEngine.js'; 
+import { query } from "../database/db_connection.js";
+// Se você tiver esse arquivo, pode manter. Se não, use o valor fixo abaixo.
+import { calculateWelcomeBonus } from "../services/rewardEngine.js";
 
-const BONUS_AMOUNT = 50; 
-const BONUS_TYPE = 'WELCOME_BONUS'; 
-const BONUS_DESC = 'Bônus de Boas-vindas: Primeira atividade completada!';
+export const WelcomeBonusService = {
 
+  async execute(user_id) {
+    // 1. Iniciar Transação (Segurança para garantir que tudo grava ou nada grava)
+    await query('BEGIN');
 
-export class WelcomeBonusService {
-    
-    // Verifica e aplica o bônus se for a primeira atividade.
-    // Deve ser chamado DEPOIS que a atividade física foi registrada e creditada
+    try {
+        // 2. Verificar se usuário existe + status da flag
+        // Ajuste: Certifique-se que a coluna 'welcome_challenge_completed' existe na tabela users
+        const userRes = await query(
+            "SELECT welcome_challenge_completed FROM users WHERE user_id = $1",
+            [user_id]
+        );
 
-    async processWelcomeBonus(userId) {
-        try {
-            // CA4: Creditado após o primeiro registro de atividade.
-            // Contamos quantas transações de atividade física o usuário já tem no banco
-            const sqlCheck = `
-                SELECT count(*) as total 
-                FROM transactions 
-                WHERE user_id = $1 AND activity_type != $2
-            `;
-            
-            const { rows } = await query(sqlCheck, [userId, BONUS_TYPE]);
-            const activityCount = parseInt(rows[0].total);
-
-            // Se o count for 1, significa que a atividade que acabou de ser processada é a primeira
-            const isFirstActivity = activityCount === 1; 
-
-            if (!isFirstActivity) {
-                return { applied: false, reason: "Usuário já possui atividades anteriores." };
-            }
-
-            console.log(`[WelcomeBonus] User ${userId}: Primeira atividade detectada! Creditando bônus...`);
-            
-            // CHAMA O MÉTODO DO REWARD ENGINE (que usa requestCapibaCredit internamente)
-            const result = await processBonusCredit(
-                userId, 
-                BONUS_AMOUNT, 
-                BONUS_TYPE, 
-                BONUS_DESC
-            );
-            
-            return { applied: true, result };
-
-        } catch (error) {
-            console.error('[WelcomeBonus] Erro ao processar bônus:', error);
-            return { error: error.message };
+        if (userRes.rows.length === 0) {
+            throw { status: 404, message: "Usuário não encontrado" };
         }
+
+        if (userRes.rows[0].welcome_challenge_completed === "S") {
+            throw { status: 400, message: "O desafio de boas-vindas já foi concluído" };
+        }
+
+        // 3. Regra do Bônus
+        const KM_CHALLENGE = 1;
+        // Se a função calculateWelcomeBonus der erro, use: const bonusCapibas = 500;
+        const bonusCapibas = calculateWelcomeBonus(KM_CHALLENGE); 
+
+        // 4. Registrar transação (Tabela transactions)
+        // Ajustado para bater com a tabela que você me mostrou (amount_capiba, bonus_origin, etc)
+        await query(
+            `INSERT INTO transactions
+            (user_id, amount_capiba, activity_type, activity_details, bonus_origin)
+            VALUES ($1, $2, 'bonus', 'Desafio de boas-vindas (1 km)', 'welcome_challenge')`,
+            [user_id, bonusCapibas]
+        );
+
+        // 5. Atualizar saldo e marcar flag (Tabela users)
+        // CORREÇÃO CRÍTICA: Mudamos de 'balance' para 'capiba_balance'
+        // COALESCE: Se o saldo for null, considera como 0 antes de somar
+        await query(
+            `UPDATE users
+            SET capiba_balance = COALESCE(capiba_balance, 0) + $1,
+                welcome_challenge_completed = 'S'
+            WHERE user_id = $2`,
+            [bonusCapibas, user_id]
+        );
+
+        // Se tudo deu certo, confirma as mudanças no banco
+        await query('COMMIT');
+        
+        return { bonus: bonusCapibas };
+
+    } catch (error) {
+        // Se algo der errado, desfaz tudo
+        await query('ROLLBACK');
+        
+        // Repassa o erro para o controller tratar
+        // Se o erro já tiver status (ex: 400 ou 404), mantém. Se não, vira 500.
+        const finalError = new Error(error.message || "Erro interno ao processar bônus");
+        finalError.status = error.status || 500;
+        throw finalError;
     }
-}
+  }
+};

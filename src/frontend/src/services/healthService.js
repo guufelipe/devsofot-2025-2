@@ -23,5 +23,5 @@ export async function collectLatestActivityData() {
  */
 export function getCurrentUserId() {
     // MOCK do ID do usuário logado (essencial para o backend)
-    return "conecta_user_12345"; 
+    return "1"; 
 }

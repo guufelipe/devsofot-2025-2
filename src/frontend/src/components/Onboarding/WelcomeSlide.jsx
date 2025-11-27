@@ -1,15 +1,15 @@
 // src/frontend/src/components/Onboarding/WelcomeSlide.jsx
 import React from 'react';
 
-// Importa o componente de logo
-import CapibaLogo from '../Logo/CapibaLogo.jsx'; 
+// Importa o caminho da imagem
+import CapibaLogo from '../../assets/icon.png'; 
 
 // Mapeamento para tags Web
 const View = 'div';
 const Text = 'p';
 const StyleSheet = { create: (s) => s };
 
-// Estilos do Slide - Focados em Layout, Tipografia e Sizing
+// Estilos do Slide
 const slideStyles = StyleSheet.create({
     container: {
         display: 'flex',
@@ -44,6 +44,12 @@ const slideStyles = StyleSheet.create({
         objectFit: 'contain',
         backgroundColor: 'transparent',
     },
+    logoImage: {
+        width: 60,       // Tamanho sugerido para a logo no topo
+        height: 60,
+        marginTop: 20,
+        objectFit: 'contain',
+    },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
@@ -54,21 +60,26 @@ const slideStyles = StyleSheet.create({
     description: {
         fontSize: 16,
         color: '#666',
-        paddingHorizontal: 20,
+        // CORREÇÃO: paddingHorizontal não existe na Web, use padding shorthand
+        padding: '0 20px', 
         fontFamily: 'Arial, sans-serif',
     }
 });
 
 /**
  * Componente que renderiza o conteúdo de cada slide do Onboarding.
- * Agora aceita qualquer imagem passada via props "icon".
  */
 const WelcomeSlide = ({ title, description, icon }) => {
     return (
         <View style={slideStyles.container}>
 
-            {/* 1. CABEÇALHO DA MARCA */}
-            <CapibaLogo />
+            {/* 1. CABEÇALHO DA MARCA (CORRIGIDO) */}
+            {/* Antes estava <CapibaLogo />, o que causa erro. Agora é uma img: */}
+            <img 
+                src={CapibaLogo} 
+                alt="Logo Capiba" 
+                style={slideStyles.logoImage} 
+            />
 
             {/* 2. Conteúdo principal */}
             <View style={slideStyles.contentWrapper}>
