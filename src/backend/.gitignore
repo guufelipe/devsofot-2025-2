@@ -22,9 +22,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-# -----------------------------------------------------------------
-# ARQUIVOS DE CONFIGURAÇÃO SENSÍVEIS (NUNCA DEVE SUBIR PARA O REPOSITÓRIO)
-# -----------------------------------------------------------------
-.env
-.env.*

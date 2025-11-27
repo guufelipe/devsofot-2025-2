@@ -1,0 +1,409 @@
+/* Variáveis para fácil manutenção */
+:root {
+  --verde-principal: #38c172; /* Verde vibrante do box */
+  --texto-titulo: #333;
+  --texto-claro: #fff;
+  --sombra-leve: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Estilos do Extrato de Capibas --- */
+.home-container {
+  padding: 20px;
+  max-width: 400px; 
+  margin: 0 auto; /* Centraliza horizontalmente */
+}
+
+/* Estilo do Container Principal (apenas para centralizar/limitar) */
+.extrato-container {
+  padding: 20px;
+  max-width: 400px; 
+  margin: 20px auto; /* Adiciona margem vertical */
+  font-family: Arial, sans-serif;
+}
+
+/* Título */
+.extrato-titulo {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--texto-titulo);
+  margin-bottom: 15px;
+}
+
+/* Box Principal do Total Acumulado */
+.total-acumulado-box {
+  background-color: var(--verde-principal);
+  color: var(--texto-claro);
+  border-radius: 12px;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  position: relative; /* Base para o posicionamento das moedas */
+  overflow: hidden; 
+  box-shadow: var(--sombra-leve);
+}
+
+/* Wrapper para o Ícone de Capibara */
+.icone-capibara-wrapper {
+  background-color: var(--texto-claro);
+  border-radius: 8px;
+  padding: 5px;
+  width: 50px; 
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 15px;
+  flex-shrink: 0; 
+}
+
+.icone-capibara {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Wrapper do Texto e Valor */
+.texto-valor-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; 
+  align-self: flex-start;
+  padding-top: 5px; 
+}
+
+.texto-acumulado {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.valor-acumulado {
+  font-size: 40px;
+  font-weight: 800;
+  line-height: 1; 
+  margin-top: 5px;
+}
+
+/* Ícones de Moeda Decorativos */
+.icones-moeda-wrapper {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  display: flex;
+}
+
+/* ✨ ESTILOS QUE ESTAVAM FALTANDO PARA AS MOEDAS ✨ */
+.icone-moeda {
+  display: inline-block;
+  width: 20px; 
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+
+/* Moeda de trás (simulando a sombra/opacidade) */
+.icone-moeda.um {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateX(5px) translateY(1px);
+  z-index: 1;
+}
+
+/* Moeda da frente */
+.icone-moeda.dois {
+  background-color: rgba(255, 255, 255, 0.1);
+  margin-left: -10px; 
+  z-index: 2;
+}
+
+/* --- ! --- */
+/* --- ! --- */
+/* Estilos para o Botão Iniciar Atividade */
+/* --- ! --- */
+/* --- ! --- */ 
+
+
+.btn-iniciar-atividade {
+    /* Layout e Tamanho */
+    width: 100%;
+    padding: 15px 20px;
+    margin-top: 30px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    
+    /* Tipografia */
+    color: white;
+    font-size: 1.15em;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    
+    /* Cor Verde Principal para INICIAR */
+    background-color: #4CAF50; /* Verde vibrante */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    
+    /* Transição para suavizar a mudança de cor! */
+    transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+/* Efeito Hover (passar o mouse) no estado verde */
+.btn-iniciar-atividade:hover {
+    background-color: #45a049; 
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Efeito ao Clicar (Active) */
+.btn-iniciar-atividade:active {
+    background-color: #3e8e41; /* Verde ainda mais escuro para feedback de clique */
+    transform: translateY(2px); /* Efeito de "apertar" o botão */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Sombra menor enquanto apertado */
+}
+
+/* Opcional: Se precisar de um estilo para quando o botão estiver desabilitado */
+.btn-iniciar-atividade:disabled {
+    background-color: #ccc;
+    color: #666;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+.btn-parar {
+    /* Cor Vermelha Principal para PARAR */
+    background-color: #F44336; /* Vermelho vibrante */
+}
+
+/* Efeito Hover (passar o mouse) no estado vermelho */
+.btn-parar:hover {
+    background-color: #d32f2f; /* Vermelho mais escuro */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Efeito Active (clicar) no estado vermelho */
+.btn-parar:active {
+    background-color: #c62828; 
+    transform: translateY(2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+
+
+
+
+/* Container principal do card */
+.desafio-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08); /* Sombra suave */
+    padding: 15px 20px;
+    margin-bottom: 20px; /* Espaçamento entre os cards */
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Espaçamento entre as seções do card */
+    max-width: 400px; /* Limite a largura para ficar parecido com a imagem */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Cabeçalho do card: ícone + info */
+.desafio-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Wrapper do ícone com cor de fundo */
+.desafio-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0; /* Impede que o ícone diminua */
+}
+
+.desafio-icon {
+    width: 30px; /* Tamanho do ícone dentro do wrapper */
+    height: 30px;
+}
+
+/* Info do desafio (título e descrição) */
+.desafio-info {
+    flex-grow: 1; /* Permite que o texto ocupe o espaço restante */
+}
+
+.desafio-titulo {
+    font-size: 1.1em;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    line-height: 1.3;
+}
+
+.desafio-descricao {
+    font-size: 0.85em;
+    color: #777;
+    margin: 2px 0 0 0;
+}
+
+/* Barra de progresso */
+.desafio-progresso-bar-container {
+    width: 100%;
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden; /* Garante que a barra interna não vaze */
+}
+
+.desafio-progresso-bar {
+    height: 100%;
+    background-color: #FF9800; /* Laranja, como na imagem */
+    border-radius: 4px;
+    transition: width 0.3s ease-in-out; /* Animação suave no progresso */
+}
+
+/* Rodapé do card (texto de progresso e recompensa) */
+.desafio-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.desafio-progresso-texto {
+    font-weight: 500;
+}
+
+.desafio-recompensa {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 600;
+    color: #5cb85c; /* Verde para a recompensa */
+}
+
+.recompensa-icon {
+    width: 20px; /* Tamanho do ícone da recompensa */
+    height: 20px;
+}
+
+/* --- Estilos para o ícone CapibaraIcon que você já tem, se for usá-lo --- */
+/* Certifique-se de que esses estilos não conflitem com os de cima */
+/* Se este ícone for usado em outro lugar, pode ir para um arquivo global ou app.css */
+.icone-capibara-wrapper {
+    background-color: #f0f0f0; /* Cor de fundo para o wrapper do capibara */
+    border-radius: 50%; /* Se for circular */
+    padding: 8px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.icone-capibara {
+    width: 40px; /* Ajuste o tamanho conforme necessário */
+    height: 40px;
+}
+
+/* --- transaction list --- */
+/* */
+/*  */
+
+.transacao-container {
+    padding: 1rem;
+    background-color: #fff; /* ou a cor de fundo do seu card */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.transacao-titulo {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 0.5rem;
+}
+
+.transacao-loading, .transacao-vazia {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 20px;
+}
+
+.transacao-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.transacao-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.transacao-item:last-child {
+    border-bottom: none;
+}
+
+.transacao-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.transacao-origem {
+    font-weight: bold;
+    color: #444;
+}
+
+.transacao-data {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 4px;
+}
+
+.transacao-valor {
+    font-weight: bold;
+    color: #2e7d32; /* Verde para indicar ganho */
+    font-size: 1.1rem;
+    white-space: nowrap;
+}
+
+/* bottom menu */
+
+.bottom-menu {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    background-color: white;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+    z-index: 1000; /* Garante que fique por cima de tudo */
+}
+
+.menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #999; /* Cor do ícone inativo */
+    font-size: 0.8rem;
+    gap: 4px;
+    transition: color 0.3s;
+}
+
+/* Quando o link estiver ativo (página atual) */
+.menu-item.active {
+    color: #2e7d32; /* Verde CapibaFit */
+    font-weight: bold;
+}
