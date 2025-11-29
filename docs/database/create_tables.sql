@@ -49,3 +49,61 @@ CREATE TABLE transactions (
     -- Metadados
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+
+-- ===============================================
+-- INSERÇÃO DE USUÁRIOS DE TESTE
+-- ===============================================
+
+-- 1. Ana Iniciante (Usuário novo, sem histórico)
+INSERT INTO users (id, name, email, password_hash, height, weight, goal, created_at)
+VALUES (
+    101, 
+    'Ana Iniciante', 
+    'ana@capibafit.com', 
+    'hash_ana_123', 
+    165, -- cm
+    60.0, -- kg
+    'Perda de Peso',
+    NOW()
+) ON CONFLICT (id) DO NOTHING;
+
+-- 2. Carlos Corredor (Usuário avançado para validar metas/cálculos)
+INSERT INTO users (id, name, email, password_hash, height, weight, goal, created_at)
+VALUES (
+    102, 
+    'Carlos Corredor', 
+    'carlos@capibafit.com', 
+    'hash_carlos_123', 
+    180, 
+    75.5, 
+    'Maratona',
+    NOW() - INTERVAL '1 month'
+) ON CONFLICT (id) DO NOTHING;
+
+-- 3. John Tourist (Usuário turista)
+INSERT INTO users (id, name, email, password_hash, height, weight, goal, created_at)
+VALUES (
+    103, 
+    'John Tourist', 
+    'john@capibafit.com', 
+    'hash_john_123', 
+    175, 
+    80.0, 
+    'Turismo Ativo',
+    NOW() - INTERVAL '5 days'
+) ON CONFLICT (id) DO NOTHING;
+
+
+-- ===============================================
+-- TABELA: goals
+-- ===============================================
+
+
+CREATE TABLE goals (
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(255) REFERENCES users(user_id), -- Tem que ser VARCHAR para bater com a tabela users
+    daily_target INT DEFAULT 3000,
+    min_target INT DEFAULT 1000,
+    created_at TIMESTAMP DEFAULT NOW()
+);

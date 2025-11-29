@@ -223,7 +223,96 @@ router.patch('/users/:user_id', async (req, res) => {
     }
 });
 
+// --------------------------------------------------
+// NOVAS ROTAS - HU3 (Metas e Progresso)
+// --------------------------------------------------
 
+// ROTA 1: GET /goals/:userId
+// Objetivo: Retornar as configurações de meta do usuário (daily_target e min_target)
+router.get('/goals/:userId', async (req, res) => {
+    const userId = req.params.userId; // Pega o ID da URL
+
+    if (!userId) {
+        return res.status(400).json({ error: "userId obrigatório na rota." });
+    }
+
+    try {
+        const sqlQuery = `
+            SELECT daily_target, min_target 
+            FROM goals 
+            WHERE user_id = $1
+        `;
+        
+        const { rows } = await query(sqlQuery, [userId]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: "Metas não encontradas para este usuário." });
+        }
+
+        // Retorna o objeto direto do banco
+        res.json(rows[0]);
+
+    } catch (err) {
+        console.error("ERRO [GET /goals]:", err.message);
+        res.status(500).send("Erro no servidor ao buscar metas.");
+    }
+});
+
+
+// ROTA 2: GET /goals/:userId/progress
+// Objetivo: Retornar meta, passos atuais e a PORCENTAGEM calculada (CA3.1)
+router.get('/goals/:userId/progress', async (req, res) => {
+    const userId = req.params.userId; // Pega o ID da URL
+
+    if (!userId) {
+        return res.status(400).json({ error: "userId obrigatório na rota." });
+    }
+
+    try {
+        // Query: Faz um LEFT JOIN para buscar a meta e o progresso do dia atual.
+        // COALESCE(p.steps_count, 0) garante 0 passos se não houver registro hoje.
+        const sqlQuery = `
+            SELECT 
+                g.daily_target, 
+                COALESCE(p.steps_count, 0) as steps_count
+            FROM goals g
+            LEFT JOIN user_progress p 
+                ON g.user_id = p.user_id 
+                AND p.activity_date = CURRENT_DATE
+            WHERE g.user_id = $1
+        `;
+
+        const { rows } = await query(sqlQuery, [userId]);
+
+        if (rows.length === 0) {
+            return res.status(404).json({ error: "Usuário sem metas definidas." });
+        }
+
+        const data = rows[0];
+        
+        // --- LÓGICA DE NEGÓCIO (BACKEND) ---
+        const target = parseInt(data.daily_target);
+        const progress = parseInt(data.steps_count);
+        
+        let percentage = 0;
+        if (target > 0) {
+            percentage = (progress / target) * 100;
+        }
+
+        // Retorna o JSON conforme o Critério de Aceitação da sua Task
+        const responsePayload = {
+            target: target,
+            progress: progress,
+            percentage: parseFloat(percentage.toFixed(1)) // Arredonda para 1 casa decimal
+        };
+
+        res.json(responsePayload);
+
+    } catch (err) {
+        console.error("ERRO [GET /goals/progress]:", err.message);
+        res.status(500).send("Erro no servidor ao calcular progresso.");
+    }
+});
 
 
 // --------------------------------------------------
